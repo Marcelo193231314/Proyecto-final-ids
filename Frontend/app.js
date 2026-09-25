@@ -308,7 +308,7 @@ const API_CARDS_URL = `${API_URL}/cards`;
 window.usarTarjeta = function(nombre, numero) {
     document.getElementById('dep-name').value = nombre;
     document.getElementById('dep-card').value = numero;
-    document.getElementById('dep-exp').focus(); // Mueve el cursor a la fecha automáticamente
+    document.getElementById('dep-exp').focus(); 
     showToast("Tarjeta seleccionada. Ingresa tu Fecha, CVV y Monto.");
 };
 
@@ -338,7 +338,6 @@ async function cargarTarjetas() {
                 <div style="color: var(--gold); margin-bottom: 3px; font-size: 14px;"><strong>${tarjeta.nombreTitular}</strong></div>
                 <div style="color: #ccc; margin-bottom: 12px; font-family: monospace; font-size: 14px;">**** **** **** ${ultimos4}</div>
                 
-                <!-- NUEVO BOTÓN: Usar Tarjeta -->
                 <div style="margin-bottom: 8px;">
                     <button onclick="usarTarjeta('${tarjeta.nombreTitular}', '${tarjeta.numeroTarjeta}')" class="btn-primary" style="width: 100%; padding: 8px; font-size: 12px; border-radius: 4px; cursor: pointer; border: none; font-weight: bold;">Usar Tarjeta</button>
                 </div>
@@ -435,15 +434,21 @@ document.getElementById('btn-get-players').addEventListener('click', async () =>
         
         data.forEach(player => {
             const role = player.role || "USER"; 
+            const isAlreadyAdmin = role === 'ROLE_ADMIN' || role === 'ADMIN';
             
             const tr = document.createElement('tr');
             tr.style.borderBottom = '1px solid #333';
             
+            const adminBtnHtml = isAlreadyAdmin 
+                ? `<span style="color: gray; font-size: 11px; margin-left: 10px;">Ya es Admin</span>`
+                : `<button onclick="hacerAdmin('${player.username}')" class="btn-outline" style="border-color: var(--gold); color: var(--gold); padding: 5px 15px; font-size: 12px; margin-left: 5px; cursor: pointer; background: transparent; border-radius: 5px; border-width: 1px; border-style: solid;">Hacer Admin</button>`;
+            
             tr.innerHTML = `
                 <td style="padding: 12px;"><strong>${player.username}</strong></td>
-                <td style="padding: 12px;">${role === 'ROLE_ADMIN' || role === 'ADMIN' ? '<span style="color:var(--gold)">Administrador</span>' : 'Jugador Normal'}</td>
+                <td style="padding: 12px;">${isAlreadyAdmin ? '<span style="color:var(--gold)">Administrador</span>' : 'Jugador Normal'}</td>
                 <td style="padding: 12px;">
                     <button onclick="auditarUsuarioAdmin('${player.username}')" class="btn-outline" style="border-color: #0dcaf0; color: #0dcaf0; padding: 5px 15px; font-size: 12px; width: auto; cursor: pointer; background: transparent; border-radius: 5px; border-width: 1px; border-style: solid;">Auditar Jugador</button>
+                    ${adminBtnHtml}
                 </td>
             `;
             tbody.appendChild(tr);
@@ -454,6 +459,32 @@ document.getElementById('btn-get-players').addEventListener('click', async () =>
         showToast("Error 403: No tienes el ROL de Administrador.");
     }
 });
+
+window.hacerAdmin = async function(targetUser) {
+    const token = localStorage.getItem('jwtToken');
+    
+    const confirmado = await CustomDialog.confirm(`¿Estás seguro de que deseas promover a ${targetUser} a Administrador? Tendrá control total sobre los jugadores.`, "Promover Usuario");
+    
+    if (!confirmado) return;
+
+    try {
+        const res = await fetch(`${API_URL}/admin/promote/${targetUser}`, {
+            method: 'PUT',
+            headers: { 
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        showToast(await res.text());
+        
+        if (res.ok) {
+            document.getElementById('btn-get-players').click();
+        }
+    } catch(e) {
+        showToast("Error conectando con el servidor.");
+    }
+};
 
 window.auditarUsuarioAdmin = async function(targetUser) {
     const token = localStorage.getItem('jwtToken');

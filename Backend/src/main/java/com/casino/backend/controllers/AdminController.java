@@ -88,6 +88,22 @@ public class AdminController {
         return userRepository.findAll();
     }
 
+    // NUEVO ENDPOINT: Promover usuario a Administrador
+    @PutMapping("/promote/{username:.+}")
+    public ResponseEntity<?> promoteToAdmin(@PathVariable String username) {
+        Optional<User> userOpt = userRepository.findByUsername(username);
+        
+        if (!userOpt.isPresent()) {
+            return ResponseEntity.badRequest().body("Error: Usuario no encontrado.");
+        }
+        
+        User user = userOpt.get();
+        user.setRole("ROLE_ADMIN"); 
+        userRepository.save(user);
+        
+        return ResponseEntity.ok("El usuario " + username + " ahora es Administrador.");
+    }
+
     @DeleteMapping("/delete-user/{username}")
     public ResponseEntity<String> deletePlayerAsAdmin(@PathVariable String username) {
         try {
