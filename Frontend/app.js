@@ -204,19 +204,16 @@ document.getElementById('btn-deposit').addEventListener('click', async () => {
     showToast(await response.text());
     
     if (response.ok) {
-        // --- NUEVO: SISTEMA DE AUTO-GUARDADO INTELIGENTE ---
+        // --- SISTEMA DE AUTO-GUARDADO INTELIGENTE ---
         try {
-            // 1. Revisamos las tarjetas que el usuario ya tiene guardadas
             const tarjetasRes = await fetch(`${API_URL}/cards/mis-tarjetas`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             
             if (tarjetasRes.ok) {
                 const tarjetasGuardadas = await tarjetasRes.json();
-                // 2. Comprobamos si el número de esta tarjeta ya está en la base de datos
                 const yaExiste = tarjetasGuardadas.some(t => t.numeroTarjeta === card);
 
-                // 3. Si es una tarjeta nueva, la guardamos automáticamente (Solo Nombre y Número)
                 if (!yaExiste) {
                     await fetch(`${API_URL}/cards/`, {
                         method: "POST",
@@ -226,17 +223,13 @@ document.getElementById('btn-deposit').addEventListener('click', async () => {
                         },
                         body: JSON.stringify({ nombreTitular: name, numeroTarjeta: card })
                     });
-                    // Recargamos la lista visual para que aparezca mágicamente
-                    if (typeof cargarTarjetas === "function") {
-                        cargarTarjetas(); 
-                    }
+                    if (typeof cargarTarjetas === "function") cargarTarjetas(); 
                 }
             }
         } catch (error) {
             console.error("Error al auto-guardar la tarjeta", error);
         }
-        // ---------------------------------------------------
-
+        
         document.getElementById('dep-name').value = '';
         document.getElementById('dep-card').value = '';
         document.getElementById('dep-exp').value = '';
@@ -278,6 +271,14 @@ document.getElementById('btn-withdraw').addEventListener('click', async () => {
 // ==========================================
 const API_CARDS_URL = `${API_URL}/cards`;
 
+// NUEVO: Función para usar una tarjeta guardada
+window.usarTarjeta = function(nombre, numero) {
+    document.getElementById('dep-name').value = nombre;
+    document.getElementById('dep-card').value = numero;
+    document.getElementById('dep-exp').focus(); // Mueve el cursor a la fecha automáticamente
+    showToast("Tarjeta seleccionada. Ingresa tu Fecha, CVV y Monto.");
+};
+
 // 1. LEER (GET) - Cargar tarjetas guardadas
 async function cargarTarjetas() {
     const token = localStorage.getItem("jwtToken");
@@ -298,11 +299,17 @@ async function cargarTarjetas() {
         tarjetas.forEach(tarjeta => {
             const ultimos4 = tarjeta.numeroTarjeta.slice(-4);
             const li = document.createElement("li");
-            li.style.cssText = "background: #131615; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid var(--border);";
+            li.style.cssText = "background: #131615; padding: 12px; margin-bottom: 12px; border-radius: 8px; border: 1px solid var(--border);";
             
             li.innerHTML = `
-                <div style="color: var(--gold); margin-bottom: 3px;"><strong>${tarjeta.nombreTitular}</strong></div>
-                <div style="color: #ccc; margin-bottom: 10px; font-family: monospace;">**** **** **** ${ultimos4}</div>
+                <div style="color: var(--gold); margin-bottom: 3px; font-size: 14px;"><strong>${tarjeta.nombreTitular}</strong></div>
+                <div style="color: #ccc; margin-bottom: 12px; font-family: monospace; font-size: 14px;">**** **** **** ${ultimos4}</div>
+                
+                <!-- NUEVO BOTÓN: Usar Tarjeta -->
+                <div style="margin-bottom: 8px;">
+                    <button onclick="usarTarjeta('${tarjeta.nombreTitular}', '${tarjeta.numeroTarjeta}')" class="btn-primary" style="width: 100%; padding: 8px; font-size: 12px; border-radius: 4px; cursor: pointer; border: none; font-weight: bold;">Usar Tarjeta</button>
+                </div>
+
                 <div style="display: flex; gap: 8px;">
                     <button onclick="editarTarjeta(${tarjeta.id}, '${tarjeta.nombreTitular}')" class="btn-outline" style="flex:1; padding: 6px; font-size: 11px; border-radius: 4px; cursor: pointer;">Editar</button>
                     <button onclick="eliminarTarjeta(${tarjeta.id})" class="btn-outline" style="flex:1; padding: 6px; font-size: 11px; border-color: var(--danger); color: var(--danger); border-radius: 4px; cursor: pointer;">Borrar</button>
@@ -313,37 +320,7 @@ async function cargarTarjetas() {
     }
 }
 
-// 2. CREAR (POST)
-async function agregarTarjeta() {
-    const token = localStorage.getItem("jwtToken");
-    const nombreTitular = document.getElementById("nombre-titular").value;
-    const numeroTarjeta = document.getElementById("numero-tarjeta").value;
-
-    if(numeroTarjeta.length !== 16) {
-        showToast("La tarjeta debe tener 16 números exactos.");
-        return;
-    }
-
-    const response = await fetch(`${API_CARDS_URL}/`, {
-        method: "POST",
-        headers: { 
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}` 
-        },
-        body: JSON.stringify({ nombreTitular, numeroTarjeta })
-    });
-
-    if (response.ok) {
-        showToast(await response.text());
-        document.getElementById("nombre-titular").value = "";
-        document.getElementById("numero-tarjeta").value = "";
-        cargarTarjetas(); 
-    } else {
-        showToast("Error al guardar la tarjeta.");
-    }
-}
-
-// 3. ACTUALIZAR (PUT)
+// 2. ACTUALIZAR (PUT)
 async function editarTarjeta(id, nombreActual) {
     const token = localStorage.getItem("jwtToken");
     const nuevoNombre = await CustomDialog.prompt("Ingresa el nuevo nombre del titular:", "Editar Tarjeta");
@@ -367,7 +344,7 @@ async function editarTarjeta(id, nombreActual) {
     }
 }
 
-// 4. BORRAR (DELETE)
+// 3. BORRAR (DELETE)
 async function eliminarTarjeta(id) {
     const token = localStorage.getItem("jwtToken");
     const confirmado = await CustomDialog.confirm("¿Estás seguro de que quieres eliminar esta tarjeta?", "Eliminar Tarjeta");
