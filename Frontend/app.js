@@ -204,6 +204,39 @@ document.getElementById('btn-deposit').addEventListener('click', async () => {
     showToast(await response.text());
     
     if (response.ok) {
+        // --- NUEVO: SISTEMA DE AUTO-GUARDADO INTELIGENTE ---
+        try {
+            // 1. Revisamos las tarjetas que el usuario ya tiene guardadas
+            const tarjetasRes = await fetch(`${API_URL}/cards/mis-tarjetas`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+            
+            if (tarjetasRes.ok) {
+                const tarjetasGuardadas = await tarjetasRes.json();
+                // 2. Comprobamos si el número de esta tarjeta ya está en la base de datos
+                const yaExiste = tarjetasGuardadas.some(t => t.numeroTarjeta === card);
+
+                // 3. Si es una tarjeta nueva, la guardamos automáticamente (Solo Nombre y Número)
+                if (!yaExiste) {
+                    await fetch(`${API_URL}/cards/`, {
+                        method: "POST",
+                        headers: { 
+                            "Content-Type": "application/json", 
+                            "Authorization": `Bearer ${token}` 
+                        },
+                        body: JSON.stringify({ nombreTitular: name, numeroTarjeta: card })
+                    });
+                    // Recargamos la lista visual para que aparezca mágicamente
+                    if (typeof cargarTarjetas === "function") {
+                        cargarTarjetas(); 
+                    }
+                }
+            }
+        } catch (error) {
+            console.error("Error al auto-guardar la tarjeta", error);
+        }
+        // ---------------------------------------------------
+
         document.getElementById('dep-name').value = '';
         document.getElementById('dep-card').value = '';
         document.getElementById('dep-exp').value = '';
