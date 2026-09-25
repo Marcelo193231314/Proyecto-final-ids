@@ -65,7 +65,7 @@ function checkLoginState() {
         
         updateBalanceUI();
         checkIfAdmin(); 
-        cargarTarjetas(); // NUEVO: Carga el CRUD de tarjetas al entrar
+        cargarTarjetas();
     } else {
         document.getElementById('auth-view').style.display = 'flex';
         document.getElementById('dashboard-view').style.display = 'none';
@@ -173,14 +173,25 @@ async function updateBalanceUI() {
 }
 
 document.getElementById('btn-deposit').addEventListener('click', async () => {
-    const card = document.getElementById('dep-card').value;
+    const name = document.getElementById('dep-name').value.trim();
+    const card = document.getElementById('dep-card').value.trim();
+    const exp = document.getElementById('dep-exp').value.trim();
+    const cvv = document.getElementById('dep-cvv').value.trim();
     const amount = parseFloat(document.getElementById('dep-amount').value);
+    
     const user = localStorage.getItem('username');
     const token = localStorage.getItem('jwtToken');
 
-    if (!amount || isNaN(amount)) return showToast("Ingresa un monto válido para depositar.");
-    
-    if (amount <= 0) {
+    if (!name || !card || !exp || !cvv) {
+        return showToast("Error: Debes llenar todos los datos de la tarjeta para depositar.");
+    }
+    if (card.length !== 16) {
+        return showToast("Error: La tarjeta debe tener 16 dígitos exactos.");
+    }
+    if (cvv.length < 3) {
+        return showToast("Error: El CVV debe tener 3 o 4 dígitos.");
+    }
+    if (!amount || isNaN(amount) || amount <= 0) {
         return showToast("Error: El depósito debe ser mayor a $0.");
     }
 
@@ -189,10 +200,14 @@ document.getElementById('btn-deposit').addEventListener('click', async () => {
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
         body: JSON.stringify({ cardNumber: card, amount: amount })
     });
+    
     showToast(await response.text());
     
     if (response.ok) {
+        document.getElementById('dep-name').value = '';
         document.getElementById('dep-card').value = '';
+        document.getElementById('dep-exp').value = '';
+        document.getElementById('dep-cvv').value = '';
         document.getElementById('dep-amount').value = '';
         updateBalanceUI();
     }
@@ -250,7 +265,6 @@ async function cargarTarjetas() {
         tarjetas.forEach(tarjeta => {
             const ultimos4 = tarjeta.numeroTarjeta.slice(-4);
             const li = document.createElement("li");
-            // Estilos para que combine con el resto de la interfaz
             li.style.cssText = "background: #131615; padding: 10px; margin-bottom: 10px; border-radius: 6px; border: 1px solid var(--border);";
             
             li.innerHTML = `
