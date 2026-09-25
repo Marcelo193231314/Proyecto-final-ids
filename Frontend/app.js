@@ -74,8 +74,41 @@ function checkLoginState() {
 window.onload = checkLoginState;
 
 document.getElementById('btn-logout').addEventListener('click', () => {
+    // 1. Borrar credenciales
     localStorage.removeItem('jwtToken');
     localStorage.removeItem('username');
+    
+    // --- LIMPIEZA TOTAL DE LA INTERFAZ ---
+    // 2. Limpiar campos del cajero
+    document.getElementById('dep-name').value = '';
+    document.getElementById('dep-card').value = '';
+    document.getElementById('dep-exp').value = '';
+    document.getElementById('dep-cvv').value = '';
+    document.getElementById('dep-amount').value = '';
+    document.getElementById('withdraw-card').value = '';
+    document.getElementById('withdraw-amount').value = '';
+    
+    // 3. Limpiar mesa de Blackjack
+    document.getElementById('player-cards').innerHTML = '';
+    document.getElementById('dealer-cards').innerHTML = '';
+    document.getElementById('player-score').innerText = '0';
+    document.getElementById('dealer-score').innerText = '?';
+    document.getElementById('game-message').innerText = 'Bienvenido a la mesa. Haz tu apuesta.';
+    document.getElementById('game-message').style.color = '#fff';
+    document.getElementById('bet-amount').value = '';
+    document.getElementById('pair-bet-amount').value = '0';
+    
+    // 4. Bloquear botones del juego hasta que vuelvan a apostar
+    document.getElementById('btn-start').disabled = false;
+    document.getElementById('btn-hit').disabled = true;
+    document.getElementById('btn-stand').disabled = true;
+    document.getElementById('btn-double').disabled = true;
+    document.getElementById('btn-insurance').disabled = true;
+    
+    // 5. Vaciar la lista de tarjetas guardadas visualmente
+    const listaTarjetas = document.getElementById('lista-tarjetas');
+    if (listaTarjetas) listaTarjetas.innerHTML = '';
+    // --------------------------------------------
     
     const adminPanel = document.getElementById('admin-panel');
     if(adminPanel) adminPanel.style.display = 'none';
