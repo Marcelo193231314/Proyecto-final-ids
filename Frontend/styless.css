@@ -1,0 +1,206 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap');
+
+:root {
+    --bg-dark: #0b0e0d;
+    --panel-bg: #16191a;
+    --panel-glass: rgba(24, 28, 27, 0.7);
+    --casino-green: #0e7a3d;
+    --casino-green-deep: #063d1f;
+    --gold: #f4c94f;
+    --gold-bright: #ffe082;
+    --text-light: #f2f2f0;
+    --text-muted: #9aa39d;
+    --danger: #e2495a;
+    --border: #2a2e2c;
+    --shadow-strong: 0 20px 50px rgba(0,0,0,0.55);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+
+body {
+    background:
+        radial-gradient(circle at 15% 10%, rgba(14,122,61,0.12), transparent 40%),
+        radial-gradient(circle at 85% 90%, rgba(244,201,79,0.08), transparent 45%),
+        var(--bg-dark);
+    color: var(--text-light);
+    min-height: 100vh;
+}
+
+h1, h2, h3, .nav-logo { font-family: 'Playfair Display', serif; letter-spacing: 0.5px; }
+
+/* VISTAS */
+#auth-view { display: flex; justify-content: center; align-items: center; min-height: 100vh; flex-direction: column; padding: 20px; }
+#dashboard-view { display: none; min-height: 100vh; flex-direction: column; }
+
+/* LOGIN / REGISTRO */
+.auth-container {
+    background: var(--panel-glass);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding: 34px;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 400px;
+    box-shadow: var(--shadow-strong);
+    text-align: center;
+    margin-bottom: 20px;
+    border: 1px solid rgba(244,201,79,0.15);
+}
+.auth-container h2 { color: var(--gold); margin-bottom: 22px; font-size: 24px; }
+.input-group { margin-bottom: 15px; text-align: left; }
+.input-group input {
+    width: 100%; padding: 12px 14px; border-radius: 8px;
+    border: 1px solid var(--border); background: #1d2120; color: white;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.input-group input:focus {
+    outline: none; border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(244,201,79,0.15);
+}
+.btn {
+    width: 100%; padding: 12px; border: none; border-radius: 8px;
+    cursor: pointer; font-weight: 600; font-size: 15px;
+    letter-spacing: 0.3px; transition: all 0.25s ease; margin-bottom: 10px;
+}
+.btn-primary {
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+    color: #1a1400;
+    box-shadow: 0 4px 14px rgba(244,201,79,0.25);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(244,201,79,0.4); }
+.btn-outline { background: transparent; border: 1px solid var(--gold); color: var(--gold); }
+.btn-outline:hover { background: rgba(244,201,79,0.08); }
+
+/* NAVBAR Y SIDEBAR */
+nav {
+    background: var(--panel-bg); padding: 16px 30px; display: flex;
+    justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+}
+.nav-logo { color: var(--gold); font-size: 26px; font-weight: 700; }
+.nav-user { display: flex; align-items: center; gap: 20px; }
+.balance-badge {
+    background: linear-gradient(135deg, var(--casino-green), var(--casino-green-deep));
+    padding: 7px 18px; border-radius: 30px; font-weight: 700;
+    border: 1px solid rgba(244,201,79,0.35);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08);
+    letter-spacing: 0.3px;
+}
+.btn-logout {
+    background: transparent; color: var(--danger); padding: 6px 16px;
+    border: 1px solid var(--danger); border-radius: 8px; cursor: pointer;
+    font-weight: 600; transition: all 0.2s;
+}
+.btn-logout:hover { background: rgba(226,73,90,0.12); }
+
+.dashboard-layout { display: flex; flex: 1; overflow: hidden; }
+.sidebar { width: 300px; background: var(--panel-bg); padding: 22px; border-right: 1px solid var(--border); overflow-y: auto; }
+.sidebar-section {
+    background: #1c201f; padding: 16px; border-radius: 12px; margin-bottom: 20px;
+    border: 1px solid var(--border);
+}
+.sidebar-section h3 {
+    margin-bottom: 15px; font-size: 15px; color: var(--gold);
+    border-bottom: 1px solid var(--border); padding-bottom: 8px;
+    text-transform: uppercase; letter-spacing: 1px; font-family: 'Poppins', sans-serif; font-weight: 600;
+}
+.sidebar input {
+    width: 100%; padding: 9px; margin-bottom: 10px; border-radius: 6px;
+    border: 1px solid var(--border); background: #131615; color: white;
+}
+.sidebar input:focus { outline: none; border-color: var(--gold); }
+
+/* MESA DE JUEGO */
+.game-area {
+    flex: 1; padding: 30px 20px; display: flex; flex-direction: column;
+    align-items: center; overflow-y: auto;
+    background:
+        radial-gradient(ellipse at center, #128041 0%, var(--casino-green-deep) 75%);
+    position: relative;
+}
+.game-area::before {
+    content: ""; position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(45deg, rgba(255,255,255,0.02) 0px, rgba(255,255,255,0.02) 2px, transparent 2px, transparent 12px);
+    pointer-events: none;
+}
+.hand-container { display: flex; gap: 12px; justify-content: center; min-height: 130px; margin: 15px 0; flex-wrap: wrap; position: relative; z-index: 1; perspective: 800px; }
+
+/* Animación de reparto: la carta llega deslizándose desde el mazo (arriba-derecha)
+   y se "voltea" en 3D hasta quedar boca arriba en su lugar. */
+.playing-card {
+    width: 82px; height: 118px; background: linear-gradient(160deg, #ffffff, #f0f0f0);
+    border-radius: 10px; display: flex; flex-direction: column; justify-content: space-between;
+    padding: 6px 10px; font-weight: 700; font-size: 20px; color: #111;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(0,0,0,0.05);
+    transform-style: preserve-3d;
+    animation: dealFromDeck 0.55s cubic-bezier(0.2, 0.8, 0.3, 1) both;
+}
+@keyframes dealFromDeck {
+    0% {
+        opacity: 0;
+        transform: translate(120px, -160px) rotate(25deg) rotateY(90deg) scale(0.7);
+    }
+    55% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(-4deg) rotateY(20deg) scale(1.02);
+    }
+    75% {
+        transform: translate(0, 0) rotate(2deg) rotateY(0deg) scale(1);
+    }
+    100% {
+        opacity: 1;
+        transform: translate(0, 0) rotate(0) rotateY(0deg) scale(1);
+    }
+}
+.playing-card.red { color: #d70000; }
+.card-center { font-size: 42px; text-align: center; align-self: center; }
+.score-box {
+    background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+    padding: 6px 18px; border-radius: 20px; font-size: 14px; color: white;
+    display: inline-block; margin-bottom: 6px; border: 1px solid rgba(244,201,79,0.25);
+    position: relative; z-index: 1;
+}
+
+/* APUESTAS Y BOTONES */
+.betting-zone {
+    background: rgba(0,0,0,0.45); backdrop-filter: blur(6px);
+    padding: 16px 20px; border-radius: 14px; display: flex; gap: 24px;
+    margin-bottom: 20px; border: 1px solid rgba(244,201,79,0.3);
+    position: relative; z-index: 1;
+}
+.bet-input-group label { display: block; font-size: 12px; color: #d8ddd9; margin-bottom: 6px; letter-spacing: 0.3px; }
+.bet-input-group input {
+    width: 110px; padding: 9px; border-radius: 6px; border: none;
+    text-align: center; font-weight: 700;
+}
+.bet-input-group input:focus { outline: 2px solid var(--gold); }
+
+.controls-zone { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+.btn-game {
+    padding: 13px 26px; border: none; border-radius: 30px; font-weight: 700;
+    cursor: pointer; transition: transform 0.15s ease, box-shadow 0.15s ease;
+    letter-spacing: 0.3px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+.btn-game:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 18px rgba(0,0,0,0.4); }
+.btn-game:disabled { opacity: 0.4; cursor: not-allowed; }
+.bg-hit { background: #f8f9fa; color: #000; }
+.bg-stand { background: var(--danger); color: white; }
+.bg-double { background: #22c3e6; color: #000; }
+.bg-insurance { background: #8b5fd6; color: white; }
+.bg-start {
+    background: linear-gradient(135deg, var(--gold-bright), var(--gold));
+    color: #1a1400; font-size: 18px; padding: 14px 44px;
+    box-shadow: 0 6px 20px rgba(244,201,79,0.35);
+}
+
+.game-message {
+    margin-top: 22px; font-size: 20px; font-weight: 700; color: var(--gold-bright);
+    text-shadow: 0 2px 8px rgba(0,0,0,0.8); min-height: 30px; position: relative; z-index: 1;
+    text-align: center;
+}
+#sys-msg {
+    position: fixed; bottom: 20px; right: 20px; background: var(--panel-bg);
+    border-left: 4px solid var(--gold); padding: 16px 26px; display: none;
+    box-shadow: var(--shadow-strong); z-index: 1000; border-radius: 8px;
+}

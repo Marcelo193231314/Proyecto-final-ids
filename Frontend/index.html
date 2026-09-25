@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Casino</title>
+    <link rel="stylesheet" href="styless.css">
+</head>
+<body>
+
+    <div id="auth-view">
+        <h1 style="color: var(--gold); margin-bottom: 30px; font-size: 36px; letter-spacing: 2px;">POWER CASINO</h1>
+        <div class="auth-container">
+            <h2>Iniciar Sesión</h2>
+            <form id="login-form">
+                <div class="input-group"><input type="text" id="login-username" placeholder="Usuario" required></div>
+                <div class="input-group"><input type="password" id="login-password" placeholder="Contraseña" required></div>
+                <button type="submit" class="btn btn-primary">Entrar a la Mesa</button>
+            </form>
+        </div>
+        <div class="auth-container" style="background: transparent; border: 1px solid var(--border); box-shadow: none;">
+            <h3 style="margin-bottom: 15px;">¿Eres nuevo?</h3>
+            <form id="register-form">
+                <div class="input-group"><input type="text" id="reg-username" placeholder="Nuevo Usuario" required></div>
+                <div class="input-group"><input type="password" id="reg-password" placeholder="Nueva Contraseña" required></div>
+                <button type="submit" class="btn btn-outline">Crear Cuenta</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="dashboard-view">
+        <nav>
+            <div class="nav-logo">POWER CASINO</div>
+            <div class="nav-user">
+                <span id="display-user" style="color: #ccc;">Usuario</span>
+                <div class="balance-badge">Balance: $<span id="display-balance">0.00</span></div>
+                <button id="btn-logout" class="btn-logout">Salir</button>
+            </div>
+        </nav>
+
+        <div class="dashboard-layout">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <h3>Cajero</h3>
+                    <div style="margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                        <h4 style="font-size: 13px; color: #ccc; margin-bottom: 5px;">Depositar Fondos</h4>
+                        <input type="text" id="dep-card" placeholder="Tarjeta (16 dígitos)" maxlength="16">
+                        <input type="number" id="dep-amount" placeholder="Monto" min="1" step="any">
+                        <button id="btn-deposit" class="btn btn-primary" style="font-size: 14px;">Depositar</button>
+                    </div>
+                    <div>
+                        <h4 style="font-size: 13px; color: #ccc; margin-bottom: 5px;">Retirar Ganancias</h4>
+                        <input type="text" id="withdraw-card" placeholder="Tarjeta destino (16 dígitos)" maxlength="16">
+                        <input type="number" id="withdraw-amount" placeholder="Monto a retirar" min="1" step="any">
+                        <button id="btn-withdraw" class="btn btn-outline" style="font-size: 14px; border-color: #0dcaf0; color: #0dcaf0; width: 100%;">Retirar a Cuenta</button>
+                    </div>
+                </div>
+
+                <!-- NUEVA SECCIÓN: MÓDULO CRUD DE TARJETAS -->
+                <div class="sidebar-section" id="seccion-tarjetas" style="display: none;">
+                    <h3>Mis Tarjetas</h3>
+                    <div style="margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                        <input type="text" id="nombre-titular" placeholder="Nombre (Ej. Marcelo)">
+                        <input type="text" id="numero-tarjeta" placeholder="Tarjeta (16 dígitos)" maxlength="16">
+                        <button onclick="agregarTarjeta()" class="btn btn-outline" style="font-size: 13px; width: 100%;">Guardar Tarjeta</button>
+                    </div>
+                    <ul id="lista-tarjetas" style="list-style: none; padding: 0; font-size: 13px;"></ul>
+                </div>
+
+                <div id="admin-panel" class="sidebar-section" style="border: 1px solid var(--danger); display: none;">
+                    <h3 style="color: var(--danger);">Zona Admin</h3>
+                    <button id="btn-get-players" class="btn btn-primary" style="font-size: 14px; background: #6c757d; color: white; border:none; margin-bottom: 10px;">Ver Jugadores (Panel)</button>
+                </div>
+
+                <button id="btn-delete-self" class="btn" style="background: transparent; border: 1px solid var(--danger); color: var(--danger); font-size: 14px; margin-top: 20px;">Borrar Mi Cuenta</button>
+            </aside>
+
+            <main class="game-area">
+                <div style="text-align: center;">
+                    <div class="score-box">Crupier: <span id="dealer-score">?</span></div>
+                    <div id="dealer-cards" class="hand-container"></div>
+                </div>
+                
+                <div class="betting-zone">
+                    <div class="bet-input-group">
+                        <label>Apuesta Normal ($)</label>
+                        <input type="number" id="bet-amount" placeholder="Ej. 50" min="1">
+                    </div>
+                    <div class="bet-input-group">
+                        <label>Pares (11 a 1) ($)</label>
+                        <input type="number" id="pair-bet-amount" placeholder="Ej. 10" min="0" value="0">
+                    </div>
+                </div>
+
+                <div class="controls-zone">
+                    <button id="btn-insurance" class="btn-game bg-insurance" disabled>Seguro</button>
+                    <button id="btn-double" class="btn-game bg-double" disabled>Doblar (x2)</button>
+                    <button id="btn-hit" class="btn-game bg-hit" disabled>Pedir Carta</button>
+                    <button id="btn-stand" class="btn-game bg-stand" disabled>Plantarse</button>
+                </div>
+                
+                <div style="margin: 20px 0; text-align: center;">
+                    <button id="btn-start" class="btn-game bg-start">REPARTIR CARTAS</button>
+                </div>
+
+                <div style="text-align: center;">
+                    <div id="player-cards" class="hand-container"></div>
+                    <div class="score-box">Tu Mano: <span id="player-score">0</span></div>
+                </div>
+
+                <div class="game-message" id="game-message">Bienvenido a la mesa. Haz tu apuesta.</div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL PANEL DE CONTROL -->
+    <div id="admin-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center;">
+        <div style="background: var(--panel-bg); padding: 25px; border-radius: 10px; width: 90%; max-width: 700px; color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 1px solid var(--gold);">
+            <h2 style="color: var(--gold); margin-bottom: 15px; border-bottom: 1px solid #333; padding-bottom: 10px;">Panel de Control - Administrador</h2>
+            
+            <div style="max-height: 400px; overflow-y: auto;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left;">
+                    <thead style="background: #252525;">
+                        <tr>
+                            <th style="padding: 12px; color: var(--gold);">Usuario</th>
+                            <th style="padding: 12px; color: var(--gold);">Rol</th>
+                            <th style="padding: 12px; color: var(--gold);">Acciones de CRUD</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-users-table"></tbody>
+                </table>
+            </div>
+            
+            <div style="text-align: right; margin-top: 20px;">
+                <button onclick="document.getElementById('admin-modal').style.display='none'" class="btn btn-outline" style="width: auto; border-color: white; color: white;">Cerrar Panel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE AUDITORÍA DE USUARIO -->
+    <div id="audit-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2500; justify-content: center; align-items: center;">
+        <div style="background: var(--panel-bg); padding: 25px; border-radius: 10px; width: 90%; max-width: 800px; color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.8); border: 1px solid #0dcaf0;">
+            <h2 style="color: #0dcaf0; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 10px;">Auditoría de Jugador</h2>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px; background: #1a1a1a; padding: 15px; border-radius: 8px; border: 1px solid var(--border);">
+                <div><strong>Usuario:</strong> <span id="audit-username"></span></div>
+                <div><strong>Rol:</strong> <span id="audit-role"></span></div>
+                <div><strong>Saldo Actual:</strong> $<span id="audit-balance" style="color: var(--casino-green); font-weight: bold;"></span></div>
+            </div>
+
+            <h3 style="margin-bottom: 10px; font-size: 16px; color: #ccc;">Historial de Transacciones</h3>
+            <div style="max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: 5px;">
+                <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+                    <thead style="background: #252525;">
+                        <tr>
+                            <th style="padding: 10px;">Fecha / Hora</th>
+                            <th style="padding: 10px;">Tipo</th>
+                            <th style="padding: 10px; text-align: right;">Monto</th>
+                            <th style="padding: 10px; text-align: right;">Saldo Posterior</th>
+                        </tr>
+                    </thead>
+                    <tbody id="audit-transactions-table"></tbody>
+                </table>
+            </div>
+            
+            <div style="text-align: right; margin-top: 20px;">
+                <button onclick="document.getElementById('audit-modal').style.display='none'" class="btn btn-primary" style="width: auto; background: #0dcaf0; color: black; border: none;">Cerrar Auditoría</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PERSONALIZADO -->
+    <div id="custom-dialog" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 3000; justify-content: center; align-items: center;">
+        <div style="background: var(--panel-bg); padding: 25px; border-radius: 10px; width: 90%; max-width: 400px; text-align: center; color: white; box-shadow: 0 10px 40px rgba(0,0,0,0.9); border: 1px solid var(--gold);">
+            <h3 id="dialog-title" style="color: var(--gold); margin-bottom: 15px;">Título</h3>
+            <p id="dialog-message" style="margin-bottom: 20px; font-size: 15px;"></p>
+            <input type="text" id="dialog-input" style="width: 100%; padding: 10px; margin-bottom: 20px; border-radius: 5px; border: 1px solid var(--border); background: #2a2a2a; color: white; display: none;">
+            <div style="display: flex; justify-content: center; gap: 15px;">
+                <button id="dialog-cancel" class="btn btn-outline" style="border-color: #ccc; color: #ccc; width: auto; padding: 8px 25px;">Cancelar</button>
+                <button id="dialog-confirm" class="btn btn-primary" style="width: auto; padding: 8px 25px;">Aceptar</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="sys-msg"></div>
+    <script src="app.js"></script>
+</body>
+</html>
