@@ -74,12 +74,9 @@ function checkLoginState() {
 window.onload = checkLoginState;
 
 document.getElementById('btn-logout').addEventListener('click', () => {
-    // 1. Borrar credenciales
     localStorage.removeItem('jwtToken');
     localStorage.removeItem('username');
     
-    // --- LIMPIEZA TOTAL DE LA INTERFAZ ---
-    // 2. Limpiar campos del cajero
     document.getElementById('dep-name').value = '';
     document.getElementById('dep-card').value = '';
     document.getElementById('dep-exp').value = '';
@@ -88,7 +85,6 @@ document.getElementById('btn-logout').addEventListener('click', () => {
     document.getElementById('withdraw-card').value = '';
     document.getElementById('withdraw-amount').value = '';
     
-    // 3. Limpiar mesa de Blackjack
     document.getElementById('player-cards').innerHTML = '';
     document.getElementById('dealer-cards').innerHTML = '';
     document.getElementById('player-score').innerText = '0';
@@ -98,17 +94,14 @@ document.getElementById('btn-logout').addEventListener('click', () => {
     document.getElementById('bet-amount').value = '';
     document.getElementById('pair-bet-amount').value = '0';
     
-    // 4. Bloquear botones del juego hasta que vuelvan a apostar
     document.getElementById('btn-start').disabled = false;
     document.getElementById('btn-hit').disabled = true;
     document.getElementById('btn-stand').disabled = true;
     document.getElementById('btn-double').disabled = true;
     document.getElementById('btn-insurance').disabled = true;
     
-    // 5. Vaciar la lista de tarjetas guardadas visualmente
     const listaTarjetas = document.getElementById('lista-tarjetas');
     if (listaTarjetas) listaTarjetas.innerHTML = '';
-    // --------------------------------------------
     
     const adminPanel = document.getElementById('admin-panel');
     if(adminPanel) adminPanel.style.display = 'none';
@@ -224,7 +217,7 @@ document.getElementById('btn-deposit').addEventListener('click', async () => {
     if (cvv.length < 3) {
         return showToast("Error: El CVV debe tener 3 o 4 dígitos.");
     }
-    if (!amount || isNaN(amount) || amount <= 0) {
+    if (!amount || Number.isNaN(amount) || amount <= 0) {
         return showToast("Error: El depósito debe ser mayor a $0.");
     }
 
@@ -237,7 +230,6 @@ document.getElementById('btn-deposit').addEventListener('click', async () => {
     showToast(await response.text());
     
     if (response.ok) {
-        // --- SISTEMA DE AUTO-GUARDADO INTELIGENTE ---
         try {
             const tarjetasRes = await fetch(`${API_URL}/cards/mis-tarjetas`, {
                 headers: { "Authorization": `Bearer ${token}` }
@@ -278,7 +270,7 @@ document.getElementById('btn-withdraw').addEventListener('click', async () => {
     const user = localStorage.getItem('username');
     const token = localStorage.getItem('jwtToken');
 
-    if (!amount || isNaN(amount)) return showToast("Ingresa un monto válido para retirar.");
+    if (!amount || Number.isNaN(amount)) return showToast("Ingresa un monto válido para retirar.");
     
     if (amount <= 0) {
         return showToast("Error: El retiro debe ser mayor a $0.");
@@ -304,7 +296,6 @@ document.getElementById('btn-withdraw').addEventListener('click', async () => {
 // ==========================================
 const API_CARDS_URL = `${API_URL}/cards`;
 
-// NUEVO: Función para usar una tarjeta guardada
 window.usarTarjeta = function(nombre, numero) {
     document.getElementById('dep-name').value = nombre;
     document.getElementById('dep-card').value = numero;
@@ -312,7 +303,6 @@ window.usarTarjeta = function(nombre, numero) {
     showToast("Tarjeta seleccionada. Ingresa tu Fecha, CVV y Monto.");
 };
 
-// 1. LEER (GET) - Cargar tarjetas guardadas
 async function cargarTarjetas() {
     const token = localStorage.getItem("jwtToken");
     if(!token) return;
@@ -352,7 +342,6 @@ async function cargarTarjetas() {
     }
 }
 
-// 2. ACTUALIZAR (PUT)
 async function editarTarjeta(id, nombreActual) {
     const token = localStorage.getItem("jwtToken");
     const nuevoNombre = await CustomDialog.prompt("Ingresa el nuevo nombre del titular:", "Editar Tarjeta");
@@ -376,7 +365,6 @@ async function editarTarjeta(id, nombreActual) {
     }
 }
 
-// 3. BORRAR (DELETE)
 async function eliminarTarjeta(id) {
     const token = localStorage.getItem("jwtToken");
     const confirmado = await CustomDialog.confirm("¿Estás seguro de que quieres eliminar esta tarjeta?", "Eliminar Tarjeta");
